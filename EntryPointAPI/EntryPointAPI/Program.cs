@@ -51,13 +51,17 @@ builder.Services.AddOpenApi();
 
 var app = builder.Build();
 
-
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
 }
 
-app.MapPost("/notificate", [Authorize](INotificationProducer producer,
+app.UseHttpsRedirection();
+
+app.UseAuthentication();
+app.UseAuthorization();
+
+app.MapPost("/notificate", (INotificationProducer producer,
     IValidator<NotificationData> validator,
     [FromBody] NotificationData data) =>
 {
@@ -72,11 +76,6 @@ app.MapPost("/notificate", [Authorize](INotificationProducer producer,
 
     return Results.Accepted();
 }).RequireAuthorization();
-
-app.UseHttpsRedirection();
-
-app.UseAuthentication();
-app.UseAuthorization();
 
 app.MapControllers();
 

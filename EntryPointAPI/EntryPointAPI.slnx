@@ -1,3 +1,4 @@
 <Solution>
   <Project Path="EntryPointAPI/EntryPointAPI.csproj" />
+  <Project Path="EntryPointTests/EntryPointTests.csproj" Id="2d5093b3-4867-41ce-a79f-93d338f7ad96" />
 </Solution>

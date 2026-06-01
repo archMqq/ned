@@ -1,5 +1,6 @@
 using EntryPointAPI.Kafka;
 using EntryPointAPI.Models;
+using EntryPointAPI.Validators;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -21,6 +22,8 @@ builder.Services.AddSingleton<NotificationConfig>(sp =>
     var topic = builder.Configuration["Kafka:Topic"];
     return new NotificationConfig(bootstrapServers, topic);
 });
+
+builder.Services.AddTransient<IValidator<NotificationData>, NotificationDataValidator>();
 
 builder.Services.AddScoped<INotificationProducer, NotificationProducer>();
 
@@ -54,8 +57,16 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
 }
 
-app.MapPost("/notificate", [Authorize](INotificationProducer producer, [FromBody] NotificationData data) =>
+app.MapPost("/notificate", [Authorize](INotificationProducer producer,
+    IValidator<NotificationData> validator,
+    [FromBody] NotificationData data) =>
 {
+    var res = validator.Validate(data);
+    if (!res.IsValid)
+    {
+        return Results.BadRequest(res.Errors);
+    }
+
     var kafkaItem = new KafkaItem(data.UserId, data.Channels);
     producer.Produce(kafkaItem);
 

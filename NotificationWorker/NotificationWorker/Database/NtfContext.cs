@@ -17,7 +17,8 @@ namespace NotificationWorker.Database
             modelBuilder.Entity<NotificationInfo>(entity =>
             {
                 entity.HasKey(e => e.Id);
-                entity.Property(e => e.Id).HasColumnType("UUID");
+                entity.Property(e => e.Id).ValueGeneratedOnAdd();
+                entity.Property(e => e.KafkaId).HasColumnType("UUID").IsRequired();
                 entity.Property(e => e.Message).IsRequired(); 
                 entity.Property(e => e.Status)
                       .HasConversion<string>()

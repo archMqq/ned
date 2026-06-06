@@ -2,12 +2,15 @@ using Confluent.Kafka;
 using Microsoft.EntityFrameworkCore;
 using NotificationWorker.Consumer;
 using NotificationWorker.Database;
+using NotificationWorker.Models;
+using NotificationWorker.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
+
 builder.Services.AddDbContext<NtfContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DbConnection")));
-
+builder.Services.AddScoped<IRepository<NotificationInfo>, NotificationRepository>();
 builder.Services.Configure<NotificationWorker.Consumer.ConsumerConfig>(opt =>
 {
     opt.BootstrapServer = builder.Configuration["Kafka:BootstrapServer"];

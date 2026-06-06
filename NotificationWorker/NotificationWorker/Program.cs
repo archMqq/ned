@@ -4,6 +4,7 @@ using NotificationWorker.Consumer;
 using NotificationWorker.Database;
 using NotificationWorker.Models;
 using NotificationWorker.Repositories;
+using StackExchange.Redis;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -19,6 +20,10 @@ builder.Services.Configure<NotificationWorker.Consumer.ConsumerConfig>(opt =>
     opt.AutoCommit = builder.Configuration.GetValue<bool>("Kafka:AutoCommit");
     opt.AutoOffsetReset = AutoOffsetReset.Earliest;
 
+});
+builder.Services.AddSingleton<IConnectionMultiplexer, ConnectionMultiplexer>(opt =>
+{
+    return ConnectionMultiplexer.Connect(builder.Configuration.GetConnectionString("RedisConnection"));
 });
 
 builder.Services.AddHostedService<ConsumeService>();
